@@ -1,4 +1,4 @@
-# Copyright 2011 Free Software Foundation, Inc.
+# Copyright 2011,2012 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -22,9 +22,28 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIRS})
+
+list(APPEND dsd_sources
+    dsd_block_ff.cc
+)
+
+set(dsd_sources "${dsd_sources}" PARENT_SCOPE)
+if(NOT dsd_sources)
+	MESSAGE(STATUS "No C++ sources... skipping lib/")
+	return()
+endif(NOT dsd_sources)
+
 add_library(gr-dsd SHARED dsd_block_ff.cc)
 target_link_libraries(gr-dsd dsd ${Boost_LIBRARIES} ${GNURADIO_RUNTIME_LIBRARIES})
 set_target_properties(gr-dsd PROPERTIES DEFINE_SYMBOL "gnuradio_dsd_EXPORTS")
+
+if(APPLE)
+    set_target_properties(gr-dsd PROPERTIES
+        INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
+    )
+endif(APPLE)
 
 ########################################################################
 # Install built library files
